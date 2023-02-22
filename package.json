@@ -18,6 +18,7 @@
     },
     "dependencies": {
         "@tauri-apps/api": "^1.2.0",
+        "solid-contextmenu": "^0.0.2",
         "solid-js": "^1.6.10"
     }
 }
