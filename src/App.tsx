@@ -1,4 +1,4 @@
-import { Component, createSignal } from 'solid-js';
+import { Component, createEffect, createSignal } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
 import { open, save } from '@tauri-apps/api/dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
@@ -7,9 +7,14 @@ import { basename } from '@tauri-apps/api/path';
 const [openedPath, setOpenedPath] = createSignal<string>();
 const [text, setText] = createSignal('');
 
+createEffect(async () => {
+    const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
+    appWindow.setTitle(`${name} - Daedalus`);
+});
+
 const newFile = () => {
-    setText(() => '');
     setOpenedPath();
+    setText('new');
 };
 
 const openFile = async () => {
@@ -69,9 +74,6 @@ const cancelMenuHandler = appWindow.onMenuClicked(async (event) => {
     if (event.payload === 'open') await openFile();
     if (event.payload === 'save') await saveFile();
     if (event.payload === 'save_as') await saveAsFile();
-
-    const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
-    appWindow.setTitle(`${name} - Daedalus`);
 });
 
 import.meta.hot?.dispose(async () => (await cancelMenuHandler)());
@@ -84,9 +86,6 @@ const handleKeypress = async (event: KeyboardEvent): Promise<void> => {
         event.preventDefault();
         await saveAsFile();
     }
-
-    const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
-    appWindow.setTitle(`${name} - Daedalus`);
 };
 addEventListener('keydown', handleKeypress);
 
@@ -98,10 +97,14 @@ import.meta.hot?.dispose(async () => {
 const App: Component = () => {
     return (
         <div class="flex flex-col bg-slate-700 h-screen w-screen justify-center items-center">
-            {openedPath}
-            <textarea onInput={(e) => setText(e.currentTarget.value)}>
-                {text}
-            </textarea>
+            {openedPath()}
+            {text}
+            <textarea
+                onInput={(e) => {
+                    setText(e.currentTarget.value);
+                }}
+                value={text()}
+            ></textarea>
         </div>
     );
 };
