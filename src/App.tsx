@@ -8,7 +8,7 @@ const [openedPath, setOpenedPath] = createSignal<string>();
 const [text, setText] = createSignal('');
 
 const newFile = () => {
-    setText('');
+    setText(() => '');
     setOpenedPath();
 };
 
@@ -64,7 +64,7 @@ const saveAsFile = async () => {
     setOpenedPath(path);
 };
 
-const cancelMenuClickedListener = appWindow.onMenuClicked(async (event) => {
+const cancelMenuHandler = appWindow.onMenuClicked(async (event) => {
     if (event.payload === 'new') newFile();
     if (event.payload === 'open') await openFile();
     if (event.payload === 'save') await saveFile();
@@ -74,7 +74,26 @@ const cancelMenuClickedListener = appWindow.onMenuClicked(async (event) => {
     appWindow.setTitle(`${name} - Daedalus`);
 });
 
-import.meta.hot?.dispose(async () => (await cancelMenuClickedListener)());
+import.meta.hot?.dispose(async () => (await cancelMenuHandler)());
+
+const handleKeypress = async (event: KeyboardEvent): Promise<void> => {
+    if (event.key === 'n' && event.ctrlKey) newFile();
+    if (event.key === 'o' && event.ctrlKey) await openFile();
+    if (event.key === 's' && event.ctrlKey && !event.shiftKey) await saveFile();
+    if (event.key === 's' && event.ctrlKey && event.shiftKey) {
+        event.preventDefault();
+        await saveAsFile();
+    }
+
+    const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
+    appWindow.setTitle(`${name} - Daedalus`);
+};
+addEventListener('keydown', handleKeypress);
+
+import.meta.hot?.dispose(async () => {
+    (await cancelMenuHandler)();
+    removeEventListener('keydown', handleKeypress);
+});
 
 const App: Component = () => {
     return (
