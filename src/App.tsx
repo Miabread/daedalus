@@ -5,16 +5,13 @@ import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import { basename } from '@tauri-apps/api/path';
 
 const [openedPath, setOpenedPath] = createSignal<string>();
+const [hasSaved, setHasSaved] = createSignal(true);
 const [text, setText] = createSignal('');
 
-createEffect(async () => {
-    const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
-    appWindow.setTitle(`${name} - Daedalus`);
-});
-
 const newFile = () => {
+    setText('');
     setOpenedPath();
-    setText('new');
+    setHasSaved(true);
 };
 
 const openFile = async () => {
@@ -33,6 +30,7 @@ const openFile = async () => {
 
     setText(await readTextFile(path));
     setOpenedPath(path);
+    setHasSaved(true);
 };
 
 const saveFile = async () => {
@@ -51,6 +49,7 @@ const saveFile = async () => {
 
     await writeTextFile(path, text());
     setOpenedPath(path);
+    setHasSaved(true);
 };
 
 const saveAsFile = async () => {
@@ -67,6 +66,7 @@ const saveAsFile = async () => {
 
     await writeTextFile(path, text());
     setOpenedPath(path);
+    setHasSaved(true);
 };
 
 const cancelMenuHandler = appWindow.onMenuClicked(async (event) => {
@@ -95,13 +95,21 @@ import.meta.hot?.dispose(async () => {
 });
 
 const App: Component = () => {
+    createEffect(async () => {
+        const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
+        const save = hasSaved() ? '' : '*';
+        appWindow.setTitle(`${save}${name} - Daedalus`);
+        console.log(save);
+    });
+
     return (
         <div class="flex flex-col bg-slate-700 h-screen w-screen justify-center items-center">
             {openedPath()}
-            {text}
+            {hasSaved() + ''}
             <textarea
                 onInput={(e) => {
                     setText(e.currentTarget.value);
+                    setHasSaved(false);
                 }}
                 value={text()}
             ></textarea>
