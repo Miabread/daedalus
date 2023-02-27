@@ -1,38 +1,51 @@
-import { Item, Menu, useContextMenu } from 'solid-contextmenu';
-import type { Component } from 'solid-js';
+import { Component, createSignal } from 'solid-js';
+import { appWindow } from '@tauri-apps/api/window';
+import { open, save } from '@tauri-apps/api/dialog';
+import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 
-const Fuck: Component = () => {
-    const ID = 1;
-    const { show } = useContextMenu({ id: ID, props: 'lala' });
-    return (
-        <div
-            class="bg-slate-800 w-full aspect-square rounded-full hover:rounded-3xl flex items-center justify-center text-3xl"
-            onClick={() => {
-                console.log('click');
-            }}
-            onContextMenu={(e) => {
-                console.log('test');
-                show(e, { props: 1 });
-            }}
-        >
-            <span>A</span>
-            <Menu id={ID} theme="dark">
-                <Item>Test</Item>
-                <Item>Test</Item>
-                <Item>Test</Item>
-            </Menu>
-        </div>
-    );
-};
+const [text, setText] = createSignal('lfwfwefwefew');
+
+appWindow.onMenuClicked(async (event) => {
+    if (event.payload === 'open') {
+        const path = await open({
+            multiple: false,
+            directory: false,
+            filters: [
+                {
+                    name: 'Text',
+                    extensions: ['txt'],
+                },
+            ],
+        });
+
+        if (typeof path !== 'string') return;
+
+        const content = await readTextFile(path);
+        setText(content);
+    }
+
+    if (event.payload === 'save') {
+        const path = await save({
+            filters: [
+                {
+                    name: 'Text',
+                    extensions: ['txt'],
+                },
+            ],
+        });
+
+        if (!path) return;
+
+        await writeTextFile(path, text());
+    }
+});
 
 const App: Component = () => {
     return (
-        <div class="flex bg-slate-700 h-screen w-screen text-white">
-            <nav class="bg-slate-900 w-20 p-2">
-                <Fuck />
-            </nav>
-            <nav class="bg-slate-800 w-60"></nav>
-            <main></main>
+        <div class="flex bg-slate-700 h-screen w-screen  justify-center items-center">
+            <textarea onChange={(e) => setText(e.currentTarget.value)}>
+                {text}
+            </textarea>
         </div>
     );
 };
