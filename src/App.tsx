@@ -27,33 +27,27 @@ const App: Component = () => {
         <div class="flex bg-slate-900 h-screen w-screen justify-center items-center text-white">
             <section class="w-1/2 p-20">
                 <h1 class="text-center font-semibold">Prepared</h1>
-                <SpellList spells={preparedSpells()}>
-                    {(spell) => (
-                        <button
-                            onClick={() =>
-                                setState('spells', (x) =>
-                                    x.filter((it) => it !== spell.id),
-                                )
-                            }
-                        >
-                            Forget
-                        </button>
-                    )}
-                </SpellList>
+                <SpellList
+                    spells={preparedSpells()}
+                    actions={{
+                        Forget(spell) {
+                            setState('spells', (x) =>
+                                x.filter((it) => it !== spell.id),
+                            );
+                        },
+                    }}
+                />
             </section>
             <section class="w-1/2 p-20">
                 <h1 class="text-center font-semibold">Class List</h1>
-                <SpellList spells={unpreparedSpells()}>
-                    {(spell) => (
-                        <button
-                            onClick={() =>
-                                setState('spells', (x) => [...x, spell.id])
-                            }
-                        >
-                            Prepare
-                        </button>
-                    )}
-                </SpellList>
+                <SpellList
+                    spells={unpreparedSpells()}
+                    actions={{
+                        Prepare(spell) {
+                            setState('spells', (x) => [...x, spell.id]);
+                        },
+                    }}
+                />
             </section>
         </div>
     );

@@ -1,9 +1,9 @@
 import { Component, For, JSX } from 'solid-js';
-import { SpellData, spellsData } from './data/spells';
+import { SpellData } from './data/spells';
 
 interface Props {
     spells: SpellData[];
-    children(spell: SpellData): JSX.Element;
+    actions: Record<string, (spell: SpellData) => void>;
 }
 
 export const SpellList: Component<Props> = (props) => {
@@ -32,7 +32,16 @@ export const SpellList: Component<Props> = (props) => {
                                     : `${spell.range.amount} ${spell.range.unit}`}
                             </td>
                             <td class="text-center p-2">
-                                {props.children(spell)}
+                                <For each={Object.entries(props.actions)}>
+                                    {([name, action]) => (
+                                        <button
+                                            onClick={() => action(spell)}
+                                            class="underline"
+                                        >
+                                            {name}
+                                        </button>
+                                    )}
+                                </For>
                             </td>
                         </tr>
                     )}
