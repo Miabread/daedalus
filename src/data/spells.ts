@@ -25,7 +25,8 @@ type ClassName =
     | 'warlock'
     | 'wizard';
 
-interface SpellData {
+export interface SpellData {
+    id: string;
     title: string;
     source: Source;
     level: Level;
@@ -55,6 +56,7 @@ export const getWikiLink = (spell: string) => {
 
 export const spellsData: Record<string, SpellData | undefined> = {
     guidance: {
+        id: 'guidance',
         title: 'Guidance',
         source: 'players_handbook',
         level: 0,
@@ -70,6 +72,7 @@ export const spellsData: Record<string, SpellData | undefined> = {
         ],
     },
     message: {
+        id: 'message',
         title: 'Message',
         source: 'players_handbook',
         level: 0,
@@ -85,6 +88,7 @@ export const spellsData: Record<string, SpellData | undefined> = {
         ],
     },
     faerie_fire: {
+        id: 'faerie_fire',
         title: 'Faerie Fire',
         source: 'players_handbook',
         level: 1,
