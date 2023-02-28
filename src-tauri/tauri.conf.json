@@ -7,8 +7,8 @@
         "distDir": "../dist"
     },
     "package": {
-        "productName": " daedalus",
-        "version": "0.1.0"
+        "productName": "Daedalus",
+        "version": "0.1.1"
     },
     "tauri": {
         "allowlist": {
