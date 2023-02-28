@@ -21,7 +21,7 @@ const App: Component = () => {
                 <For each={preparedSpells()}>
                     {(spell) => (
                         <li>
-                            {spell}
+                            {spellsData[spell]?.title}
                             <button
                                 onClick={() =>
                                     setState('spells', (x) =>
@@ -46,7 +46,7 @@ const App: Component = () => {
                             >
                                 {'<-'}
                             </button>
-                            {spell}
+                            {spellsData[spell]?.title}
                         </li>
                     )}
                 </For>

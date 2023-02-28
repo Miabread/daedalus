@@ -40,9 +40,16 @@ interface SpellData {
     description: string[];
 }
 
-export const sortSpells = (a: string, b: string) => a.localeCompare(b);
+export const sortSpells = (a: string, b: string) => {
+    const dataA = spellsData[a];
+    const dataB = spellsData[b];
 
-export const spellsData = {
+    if (!dataA || !dataB) return a.localeCompare(b);
+
+    return dataA.title.localeCompare(dataB.title);
+};
+
+export const spellsData: Record<string, SpellData | undefined> = {
     guidance: {
         title: 'Guidance',
         source: 'players_handbook',
@@ -73,4 +80,4 @@ export const spellsData = {
             "You can cast this spell through solid objects if you are familiar with the target and know it is beyond the barrier. Magical silence, 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood blocks the spell. The spell doesn't have to follow a straight line and can travel freely around corners or through openings.",
         ],
     },
-} satisfies Record<string, SpellData>;
+};
