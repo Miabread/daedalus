@@ -19,7 +19,7 @@ fn main() {
                 CustomMenuItem::new("save", "Save")
                     .accelerator("Ctrl+S")
                     .into(),
-                CustomMenuItem::new("save_as", "Save As")
+                CustomMenuItem::new("saveAs", "Save As")
                     .accelerator("Shift+Ctrl+S")
                     .into(),
                 MenuItem::Separator.into(),

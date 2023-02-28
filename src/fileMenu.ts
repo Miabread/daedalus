@@ -25,21 +25,6 @@ const updateState: typeof setState = (...args: any[]) => {
 
 export { state, updateState as setState };
 
-const newFile = async () => {
-    if (!hasSaved()) {
-        const continueAnyways = await confirm(
-            "The current character hasn't been saved. Start a new one anyways?",
-            { type: 'warning' },
-        );
-
-        if (!continueAnyways) return;
-    }
-
-    setState(schema.parse(undefined));
-    setOpenedPath();
-    setHasSaved(true);
-};
-
 const filters = [
     {
         name: 'Character',
@@ -47,67 +32,83 @@ const filters = [
     },
 ];
 
-const openFile = async () => {
-    if (!hasSaved()) {
-        const continueAnyways = await confirm(
-            "The current character hasn't been saved. Open a new one anyways?",
-            { type: 'warning' },
-        );
+const menuHandlers: Record<string, (() => Promise<void>) | undefined> = {
+    async new() {
+        if (!hasSaved()) {
+            const continueAnyways = await confirm(
+                "The current character hasn't been saved. Start a new one anyways?",
+                { type: 'warning' },
+            );
 
-        if (!continueAnyways) return;
-    }
+            if (!continueAnyways) return;
+        }
 
-    const path = await open({
-        multiple: false,
-        directory: false,
-        filters,
-    });
+        setState(schema.parse(undefined));
+        setOpenedPath();
+        setHasSaved(true);
+    },
 
-    if (typeof path !== 'string') return;
+    async open() {
+        if (!hasSaved()) {
+            const continueAnyways = await confirm(
+                "The current character hasn't been saved. Open a new one anyways?",
+                { type: 'warning' },
+            );
 
-    const content = await readTextFile(path);
+            if (!continueAnyways) return;
+        }
 
-    try {
-        const state = schema.parse(JSON.parse(content));
-        setState(state);
+        const path = await open({
+            multiple: false,
+            directory: false,
+            filters,
+        });
+
+        if (typeof path !== 'string') return;
+
+        const content = await readTextFile(path);
+
+        try {
+            const state = schema.parse(JSON.parse(content));
+            setState(state);
+            setOpenedPath(path);
+            setHasSaved(true);
+        } catch {
+            message('Invalid file format :(', { type: 'error' });
+        }
+    },
+
+    async save() {
+        const path = openedPath() ?? (await save({ filters }));
+
+        if (!path) return;
+
+        await writeTextFile(path, JSON.stringify(state));
         setOpenedPath(path);
         setHasSaved(true);
-    } catch {
-        message('Invalid file format :(', { type: 'error' });
-    }
-};
+    },
 
-const saveFile = async () => {
-    const path = openedPath() ?? (await save({ filters }));
+    async saveAs() {
+        const path = await save({ filters });
 
-    if (!path) return;
+        if (!path) return;
 
-    await writeTextFile(path, JSON.stringify(state));
-    setOpenedPath(path);
-    setHasSaved(true);
-};
+        await writeTextFile(path, JSON.stringify(state));
+        setOpenedPath(path);
+        setHasSaved(true);
+    },
 
-const saveAsFile = async () => {
-    const path = await save({ filters });
+    async github() {
+        await shell.open('https://github.com/Ambread/daedalus');
+    },
 
-    if (!path) return;
-
-    await writeTextFile(path, JSON.stringify(state));
-    setOpenedPath(path);
-    setHasSaved(true);
+    async about() {
+        await message(':3');
+    },
 };
 
 const cancelMenuHandler = appWindow.onMenuClicked(async (event) => {
-    if (event.payload === 'new') newFile();
-    if (event.payload === 'open') await openFile();
-    if (event.payload === 'save') await saveFile();
-    if (event.payload === 'save_as') await saveAsFile();
-    if (event.payload === 'github') {
-        await shell.open('https://github.com/Ambread/daedalus');
-    }
-    if (event.payload === 'about') {
-        await message(':3');
-    }
+    await menuHandlers[event.payload]?.();
 });
 
 import.meta.hot?.dispose(async () => {
