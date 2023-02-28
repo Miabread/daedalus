@@ -3,13 +3,29 @@ import { appWindow } from '@tauri-apps/api/window';
 import { open, save } from '@tauri-apps/api/dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import { basename } from '@tauri-apps/api/path';
+import { createStore } from 'solid-js/store';
+import { z } from 'zod';
+
+export const schema = z
+    .object({
+        count: z.number().default(0),
+    })
+    .default({});
 
 const [openedPath, setOpenedPath] = createSignal<string>();
 export const [hasSaved, setHasSaved] = createSignal(true);
-export const [text, setText] = createSignal('');
+const [state, setState] = createStore(schema.parse(undefined));
+
+const updateState: typeof setState = (...args: any[]) => {
+    //@ts-ignore
+    setState(...args);
+    setHasSaved(false);
+};
+
+export { state, updateState as setState };
 
 const newFile = () => {
-    setText('');
+    setState(schema.parse(undefined));
     setOpenedPath();
     setHasSaved(true);
 };
@@ -28,7 +44,9 @@ const openFile = async () => {
 
     if (typeof path !== 'string') return;
 
-    setText(await readTextFile(path));
+    const content = await readTextFile(path);
+    const state = schema.parse(JSON.parse(content));
+    setState(state);
     setOpenedPath(path);
     setHasSaved(true);
 };
@@ -47,7 +65,7 @@ const saveFile = async () => {
 
     if (!path) return;
 
-    await writeTextFile(path, text());
+    await writeTextFile(path, JSON.stringify(state));
     setOpenedPath(path);
     setHasSaved(true);
 };
@@ -64,7 +82,7 @@ const saveAsFile = async () => {
 
     if (!path) return;
 
-    await writeTextFile(path, text());
+    await writeTextFile(path, JSON.stringify(state));
     setOpenedPath(path);
     setHasSaved(true);
 };

@@ -1,18 +1,13 @@
 import { Component } from 'solid-js';
-import { setHasSaved, setText, text, useFileMenu } from './fileMenu';
+import { setState, state, useFileMenu } from './fileMenu';
 
 const App: Component = () => {
     useFileMenu();
 
     return (
         <div class="flex flex-col bg-slate-700 h-screen w-screen justify-center items-center">
-            <textarea
-                onInput={(e) => {
-                    setText(e.currentTarget.value);
-                    setHasSaved(false);
-                }}
-                value={text()}
-            ></textarea>
+            <h1>{state.count}</h1>
+            <button onClick={() => setState('count', (x) => x + 1)}>+1</button>
         </div>
     );
 };
