@@ -1,6 +1,6 @@
 import { createEffect, createSignal } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
-import { message, open, save } from '@tauri-apps/api/dialog';
+import { message, open, save, confirm } from '@tauri-apps/api/dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import { basename } from '@tauri-apps/api/path';
 import { createStore } from 'solid-js/store';
@@ -24,7 +24,16 @@ const updateState: typeof setState = (...args: any[]) => {
 
 export { state, updateState as setState };
 
-const newFile = () => {
+const newFile = async () => {
+    if (!hasSaved()) {
+        const continueAnyways = await confirm(
+            "The current character hasn't been saved. Start a new one anyways?",
+            { type: 'warning' },
+        );
+
+        if (!continueAnyways) return;
+    }
+
     setState(schema.parse(undefined));
     setOpenedPath();
     setHasSaved(true);
@@ -38,6 +47,15 @@ const filters = [
 ];
 
 const openFile = async () => {
+    if (!hasSaved()) {
+        const continueAnyways = await confirm(
+            "The current character hasn't been saved. Open a new one anyways?",
+            { type: 'warning' },
+        );
+
+        if (!continueAnyways) return;
+    }
+
     const path = await open({
         multiple: false,
         directory: false,
@@ -89,7 +107,7 @@ import.meta.hot?.dispose(async () => {
     (await cancelMenuHandler)();
 });
 
-export const useFileMenu = () => {
+export const useTitleBar = () => {
     createEffect(async () => {
         const save = hasSaved() ? '' : '*';
         const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
