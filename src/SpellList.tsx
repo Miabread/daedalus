@@ -1,5 +1,6 @@
+import { shell } from '@tauri-apps/api';
 import { Component, For, JSX } from 'solid-js';
-import { SpellData } from './data/spells';
+import { getWikiLink, SpellData } from './data/spells';
 
 interface Props {
     spells: SpellData[];
@@ -12,8 +13,10 @@ export const SpellList: Component<Props> = (props) => {
             <thead class="border border-black rounded shadow-md">
                 <tr class="px-4 py-2 bg-slate-800 border-b border-black">
                     <th class="p-2 text-left">Name</th>
-                    <th class="p-2">Time</th>
+                    <th class="p-2">School</th>
+                    <th class="p-2">Casting Time</th>
                     <th class="p-2">Range</th>
+                    <th class="p-2">Duration</th>
                     <th class="p-2">Actions</th>
                 </tr>
             </thead>
@@ -21,7 +24,19 @@ export const SpellList: Component<Props> = (props) => {
                 <For each={props.spells}>
                     {(spell) => (
                         <tr class="px-4 py-2 bg-slate-700 hover:bg-slate-600 border-b last:border-none border-black">
-                            <td class="p-2">{spell.title}</td>
+                            <td class="p-2">
+                                <span
+                                    class="hover:underline"
+                                    onClick={() =>
+                                        shell.open(getWikiLink(spell.id))
+                                    }
+                                >
+                                    {spell.title}
+                                </span>
+                            </td>
+                            <td class="text-center p-2 capitalize italic">
+                                {spell.school}
+                            </td>
                             <td class="text-center p-2">
                                 {spell.castingTime.amount}{' '}
                                 {spell.castingTime.unit}
@@ -30,6 +45,10 @@ export const SpellList: Component<Props> = (props) => {
                                 {spell.range === 'touch'
                                     ? 'Touch'
                                     : `${spell.range.amount} ${spell.range.unit}`}
+                            </td>
+                            <td class="text-center p-2">
+                                {spell.concentration && 'Concentration, up to '}
+                                {spell.duration.amount} {spell.duration.unit}
                             </td>
                             <td class="text-center p-2">
                                 <For each={Object.entries(props.actions)}>
