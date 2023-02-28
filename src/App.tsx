@@ -1,19 +1,18 @@
 import { Component, createMemo, For } from 'solid-js';
+import { sortSpells, spellsData } from './data/spells';
 import { setState, state, useTitleBar } from './fileMenu';
-
-const spells = [1, 2, 3, 4, 5, 6];
 
 const App: Component = () => {
     useTitleBar();
 
     const preparedSpells = createMemo(() =>
-        state.spells.slice().sort((a, b) => a - b),
+        state.spells.slice().sort(sortSpells),
     );
     const unpreparedSpells = createMemo(() =>
-        spells
+        Object.keys(spellsData)
             .filter((it) => !state.spells.includes(it))
             .slice()
-            .sort((a, b) => a - b),
+            .sort(sortSpells),
     );
 
     return (

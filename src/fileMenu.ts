@@ -10,7 +10,7 @@ import { shell } from '@tauri-apps/api';
 export const schema = z
     .object({
         count: z.number().default(0),
-        spells: z.array(z.number()).default([]),
+        spells: z.array(z.string()).default([]),
     })
     .default({});
 
