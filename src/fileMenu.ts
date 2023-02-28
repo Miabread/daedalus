@@ -5,6 +5,7 @@ import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import { basename } from '@tauri-apps/api/path';
 import { createStore } from 'solid-js/store';
 import { z } from 'zod';
+import { shell } from '@tauri-apps/api';
 
 export const schema = z
     .object({
@@ -101,6 +102,12 @@ const cancelMenuHandler = appWindow.onMenuClicked(async (event) => {
     if (event.payload === 'open') await openFile();
     if (event.payload === 'save') await saveFile();
     if (event.payload === 'save_as') await saveAsFile();
+    if (event.payload === 'github') {
+        await shell.open('https://github.com/Ambread/daedalus');
+    }
+    if (event.payload === 'about') {
+        await message(':3');
+    }
 });
 
 import.meta.hot?.dispose(async () => {
