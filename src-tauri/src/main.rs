@@ -3,16 +3,26 @@
     windows_subsystem = "windows"
 )]
 
-use tauri::{CustomMenuItem, Menu, Submenu};
+use tauri::{CustomMenuItem, Menu, MenuItem, Submenu};
 
 fn main() {
     let menu = Menu::with_items([Submenu::new(
         "File",
         Menu::with_items([
-            CustomMenuItem::new("new", "New").into(),
-            CustomMenuItem::new("open", "Open").into(),
-            CustomMenuItem::new("save", "Save").into(),
-            CustomMenuItem::new("save_as", "Save As").into(),
+            CustomMenuItem::new("new", "New")
+                .accelerator("Ctrl+N")
+                .into(),
+            CustomMenuItem::new("open", "Open")
+                .accelerator("Ctrl+O")
+                .into(),
+            CustomMenuItem::new("save", "Save")
+                .accelerator("Ctrl+S")
+                .into(),
+            CustomMenuItem::new("save_as", "Save As")
+                .accelerator("Shift+Ctrl+S")
+                .into(),
+            MenuItem::Separator.into(),
+            MenuItem::Quit.into(),
         ]),
     )
     .into()]);

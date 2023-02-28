@@ -85,21 +85,8 @@ const cancelMenuHandler = appWindow.onMenuClicked(async (event) => {
     if (event.payload === 'save_as') await saveAsFile();
 });
 
-import.meta.hot?.dispose(async () => (await cancelMenuHandler)());
-
-const handleKeypress = async (event: KeyboardEvent): Promise<void> => {
-    if (!event.ctrlKey) return;
-
-    if (event.key === 'n') newFile();
-    if (event.key === 'o') await openFile();
-    if (event.key === 's') await saveFile();
-    if (event.key === 'S') await saveAsFile();
-};
-addEventListener('keydown', handleKeypress);
-
 import.meta.hot?.dispose(async () => {
     (await cancelMenuHandler)();
-    removeEventListener('keydown', handleKeypress);
 });
 
 export const useFileMenu = () => {
@@ -107,6 +94,5 @@ export const useFileMenu = () => {
         const save = hasSaved() ? '' : '*';
         const name = openedPath() ? await basename(openedPath()!) : 'Untitled';
         appWindow.setTitle(`${save}${name} - Daedalus`);
-        console.log(save);
     });
 };
