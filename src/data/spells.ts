@@ -49,6 +49,10 @@ export const sortSpells = (a: string, b: string) => {
     return dataA.title.localeCompare(dataB.title);
 };
 
+export const getWikiLink = (spell: string) => {
+    return 'http://dnd5e.wikidot.com/spell:' + spell.replace('_', '-');
+};
+
 export const spellsData: Record<string, SpellData | undefined> = {
     guidance: {
         title: 'Guidance',
