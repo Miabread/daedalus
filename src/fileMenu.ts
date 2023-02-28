@@ -36,10 +36,9 @@ const filters = [
 const menuHandlers: Record<string, (() => Promise<void>) | undefined> = {
     async new() {
         if (!hasSaved()) {
-            const continueAnyways = await confirm(
-                "The current character hasn't been saved. Start a new one anyways?",
-                { type: 'warning' },
-            );
+            const continueAnyways = await confirm("The current character hasn't been saved. Start a new one anyways?", {
+                type: 'warning',
+            });
 
             if (!continueAnyways) return;
         }
@@ -51,10 +50,9 @@ const menuHandlers: Record<string, (() => Promise<void>) | undefined> = {
 
     async open() {
         if (!hasSaved()) {
-            const continueAnyways = await confirm(
-                "The current character hasn't been saved. Open a new one anyways?",
-                { type: 'warning' },
-            );
+            const continueAnyways = await confirm("The current character hasn't been saved. Open a new one anyways?", {
+                type: 'warning',
+            });
 
             if (!continueAnyways) return;
         }

@@ -31,9 +31,7 @@ const App: Component = () => {
                     spells={preparedSpells()}
                     actions={{
                         Forget(spell) {
-                            setState('spells', (x) =>
-                                x.filter((it) => it !== spell.id),
-                            );
+                            setState('spells', (spells) => spells.filter((id) => id !== spell.id));
                         },
                     }}
                 />
@@ -44,7 +42,7 @@ const App: Component = () => {
                     spells={unpreparedSpells()}
                     actions={{
                         Prepare(spell) {
-                            setState('spells', (x) => [...x, spell.id]);
+                            setState('spells', (spells) => [...spells, spell.id]);
                         },
                     }}
                 />
