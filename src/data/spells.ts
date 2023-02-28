@@ -80,4 +80,21 @@ export const spellsData: Record<string, SpellData | undefined> = {
             "You can cast this spell through solid objects if you are familiar with the target and know it is beyond the barrier. Magical silence, 1 foot of stone, 1 inch of common metal, a thin sheet of lead, or 3 feet of wood blocks the spell. The spell doesn't have to follow a straight line and can travel freely around corners or through openings.",
         ],
     },
+    faerie_fire: {
+        title: 'Faerie Fire',
+        source: 'players_handbook',
+        level: 1,
+        school: 'evocation',
+        castingTime: { amount: 1, unit: 'action' },
+        range: { amount: 60, unit: 'feet' },
+        components: { V: true },
+        duration: { amount: 1, unit: 'minute' },
+        concentration: true,
+        spellLists: ['artificer', 'bard', 'druid'],
+        description: [
+            'Each object in a 20-foot cube within range is outlined in blue, green, or violet light (your choice).',
+            'Any creature in the area when the spell is cast is also outlined in light if it fails a Dexterity saving throw. For the duration, objects and affected creatures shed dim light in a 10-foot radius.',
+            "Any attack roll against an affected creature or object has advantage if the attacker can see it, and the affected creature or object can't benefit from being invisible.",
+        ],
+    },
 };
