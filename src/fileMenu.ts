@@ -10,11 +10,12 @@ import { shell } from '@tauri-apps/api';
 export const schema = z
     .object({
         count: z.number().default(0),
+        spells: z.array(z.number()).default([]),
     })
     .default({});
 
 const [openedPath, setOpenedPath] = createSignal<string>();
-export const [hasSaved, setHasSaved] = createSignal(true);
+const [hasSaved, setHasSaved] = createSignal(true);
 const [state, setState] = createStore(schema.parse(undefined));
 
 const updateState: typeof setState = (...args: any[]) => {
