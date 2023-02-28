@@ -1,6 +1,6 @@
 import { createEffect, createSignal } from 'solid-js';
 import { appWindow } from '@tauri-apps/api/window';
-import { open, save } from '@tauri-apps/api/dialog';
+import { message, open, save } from '@tauri-apps/api/dialog';
 import { readTextFile, writeTextFile } from '@tauri-apps/api/fs';
 import { basename } from '@tauri-apps/api/path';
 import { createStore } from 'solid-js/store';
@@ -30,38 +30,36 @@ const newFile = () => {
     setHasSaved(true);
 };
 
+const filters = [
+    {
+        name: 'Character',
+        extensions: ['chr'],
+    },
+];
+
 const openFile = async () => {
     const path = await open({
         multiple: false,
         directory: false,
-        filters: [
-            {
-                name: 'Text',
-                extensions: ['txt'],
-            },
-        ],
+        filters,
     });
 
     if (typeof path !== 'string') return;
 
     const content = await readTextFile(path);
-    const state = schema.parse(JSON.parse(content));
-    setState(state);
-    setOpenedPath(path);
-    setHasSaved(true);
+
+    try {
+        const state = schema.parse(JSON.parse(content));
+        setState(state);
+        setOpenedPath(path);
+        setHasSaved(true);
+    } catch {
+        message('Invalid file format :(', { type: 'error' });
+    }
 };
 
 const saveFile = async () => {
-    const path =
-        openedPath() ??
-        (await save({
-            filters: [
-                {
-                    name: 'Text',
-                    extensions: ['txt'],
-                },
-            ],
-        }));
+    const path = openedPath() ?? (await save({ filters }));
 
     if (!path) return;
 
@@ -71,14 +69,7 @@ const saveFile = async () => {
 };
 
 const saveAsFile = async () => {
-    const path = await save({
-        filters: [
-            {
-                name: 'Text',
-                extensions: ['txt'],
-            },
-        ],
-    });
+    const path = await save({ filters });
 
     if (!path) return;
 
@@ -97,10 +88,12 @@ const cancelMenuHandler = appWindow.onMenuClicked(async (event) => {
 import.meta.hot?.dispose(async () => (await cancelMenuHandler)());
 
 const handleKeypress = async (event: KeyboardEvent): Promise<void> => {
-    if (event.key === 'n' && event.ctrlKey) newFile();
-    if (event.key === 'o' && event.ctrlKey) await openFile();
-    if (event.key === 's' && event.ctrlKey) await saveFile();
-    if (event.key === 'S' && event.ctrlKey) await saveAsFile();
+    if (!event.ctrlKey) return;
+
+    if (event.key === 'n') newFile();
+    if (event.key === 'o') await openFile();
+    if (event.key === 's') await saveFile();
+    if (event.key === 'S') await saveAsFile();
 };
 addEventListener('keydown', handleKeypress);
 
