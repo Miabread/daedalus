@@ -13,7 +13,7 @@ export const SpellList: Component<Props> = (props) => {
             <thead class="border border-black rounded shadow-md">
                 <tr class="px-4 py-2 bg-slate-800 border-b border-black">
                     <th class="font-semibold p-2 text-left">Name</th>
-                    <th class="font-semibold p-2">School</th>
+                    <th class="font-semibold p-2">Level</th>
                     <th class="font-semibold p-2">Casting Time</th>
                     <th class="font-semibold p-2">Range</th>
                     <th class="font-semibold p-2">Duration</th>
@@ -32,7 +32,7 @@ export const SpellList: Component<Props> = (props) => {
                                     {spell.title}
                                 </span>
                             </td>
-                            <td class="text-center p-2 capitalize italic">{spell.school}</td>
+                            <td class="text-center p-2">{spell.level}</td>
                             <td class="text-center p-2">
                                 {spell.castingTime.amount} {spell.castingTime.unit}
                                 {spell.ritual && ' or ritual'}
