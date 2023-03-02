@@ -19,16 +19,18 @@ const App: Component = () => {
 
     const sortSpells = (spellIds: string[]) =>
         spellIds
-            .sort(spells.sortSpells)
             .map((spellId) => spells.data[spellId])
             .filter((spell): spell is spells.SpellData => !!spell)
-            .filter((spell) => {
-                if (isDefined(sortingOptions.level) && sortingOptions.level !== spell.level) return false;
-                if (isDefined(sortingOptions.school) && sortingOptions.school !== spell.school) return false;
-                if (isDefined(sortingOptions.className) && !spell.spellLists.includes(sortingOptions.className)) {
-                    return false;
-                }
-                return true;
+            .filter(
+                (spell) =>
+                    (!isDefined(sortingOptions.level) || sortingOptions.level === spell.level) &&
+                    (!isDefined(sortingOptions.school) || sortingOptions.school === spell.school) &&
+                    (!isDefined(sortingOptions.className) || spell.spellLists.includes(sortingOptions.className)),
+            )
+            .sort((a, b) => {
+                if (a.level > b.level) return 1;
+                if (a.level < b.level) return -1;
+                return a.title.localeCompare(b.title);
             });
 
     const preparedSpells = createMemo(() => sortSpells(state.spells.slice()));
