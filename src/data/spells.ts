@@ -1,6 +1,14 @@
 type Source = 'players_handbook';
-type Level = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
-type School =
+type UnitAmount<T> = { amount: number; unit: T };
+type CastingTime = UnitAmount<'action'>;
+type Range = 'touch' | UnitAmount<'feet'>;
+type Components = { V?: boolean; S?: boolean; M?: string };
+type Duration = UnitAmount<'round' | 'minute'>;
+
+export type Level = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9;
+export const levels = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
+
+export type School =
     | 'abjuration'
     | 'conjuration'
     | 'divination'
@@ -9,12 +17,18 @@ type School =
     | 'illusion'
     | 'necromancy'
     | 'transmutation';
-type UnitAmount<T> = { amount: number; unit: T };
-type CastingTime = UnitAmount<'action'>;
-type Range = 'touch' | UnitAmount<'feet'>;
-type Components = { V?: boolean; S?: boolean; M?: string };
-type Duration = UnitAmount<'round' | 'minute'>;
-type ClassName =
+export const schools = [
+    'abjuration',
+    'conjuration',
+    'divination',
+    'enchantment',
+    'evocation',
+    'illusion',
+    'necromancy',
+    'transmutation',
+] as const;
+
+export type ClassName =
     | 'artificer'
     | 'bard'
     | 'cleric'
@@ -24,6 +38,17 @@ type ClassName =
     | 'sorcerer'
     | 'warlock'
     | 'wizard';
+export const classNames = [
+    'artificer',
+    'bard',
+    'cleric',
+    'druid',
+    'paladin',
+    'ranger',
+    'sorcerer',
+    'warlock',
+    'wizard',
+] as const;
 
 export interface SpellData {
     id: string;
@@ -42,8 +67,8 @@ export interface SpellData {
 }
 
 export const sortSpells = (a: string, b: string) => {
-    const dataA = spellsData[a];
-    const dataB = spellsData[b];
+    const dataA = data[a];
+    const dataB = data[b];
 
     if (!dataA || !dataB) return a.localeCompare(b);
 
@@ -54,7 +79,7 @@ export const getWikiLink = (spellId: string) => {
     return 'http://dnd5e.wikidot.com/spell:' + spellId.replace('_', '-');
 };
 
-export const spellsData: Record<string, SpellData | undefined> = {
+export const data: Record<string, SpellData | undefined> = {
     guidance: {
         id: 'guidance',
         title: 'Guidance',

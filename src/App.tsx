@@ -1,52 +1,109 @@
 import { Component, createMemo, For, Match, Switch } from 'solid-js';
-import { sortSpells, SpellData, spellsData } from './data/spells';
+import { createStore } from 'solid-js/store';
+import * as spells from './data/spells';
 import { setState, state, useTitleBar } from './fileMenu';
 import { SpellList } from './SpellList';
+
+interface SortingOptions {
+    level?: spells.Level;
+    school?: spells.School;
+    className?: spells.ClassName;
+}
+
+const isDefined = <T,>(value: T | undefined): value is T => value !== undefined;
 
 const App: Component = () => {
     useTitleBar();
 
-    const preparedSpells = createMemo(() =>
-        state.spells
-            .slice()
-            .sort(sortSpells)
-            .map((spellId) => spellsData[spellId])
-            .filter((spell): spell is SpellData => !!spell),
-    );
+    const [sortingOptions, setSortingOptions] = createStore({} as SortingOptions);
 
+    const sortSpells = (spellIds: string[]) =>
+        spellIds
+            .sort(spells.sortSpells)
+            .map((spellId) => spells.data[spellId])
+            .filter((spell): spell is spells.SpellData => !!spell)
+            .filter((spell) => {
+                if (isDefined(sortingOptions.level) && sortingOptions.level !== spell.level) return false;
+                if (isDefined(sortingOptions.school) && sortingOptions.school !== spell.school) return false;
+                if (isDefined(sortingOptions.className) && !spell.spellLists.includes(sortingOptions.className)) {
+                    return false;
+                }
+                return true;
+            });
+
+    const preparedSpells = createMemo(() => sortSpells(state.spells.slice()));
     const unpreparedSpells = createMemo(() =>
-        Object.keys(spellsData)
-            .filter((spellId) => !state.spells.includes(spellId))
-            .slice()
-            .sort(sortSpells)
-            .map((spellId) => spellsData[spellId])
-            .filter((spell): spell is SpellData => !!spell),
+        sortSpells(
+            Object.keys(spells.data)
+                .filter((spellId) => !state.spells.includes(spellId))
+                .slice(),
+        ),
     );
 
     return (
-        <div class="flex bg-slate-900 h-screen w-screen justify-center items-center text-white">
-            <section class="w-1/2 p-20">
-                <h1 class="text-center font-semibold">Prepared</h1>
-                <SpellList
-                    spells={preparedSpells()}
-                    actions={{
-                        Forget(spell) {
-                            setState('spells', (spells) => spells.filter((id) => id !== spell.id));
-                        },
+        <div class="flex flex-col justify-center items-center bg-slate-900 h-screen w-screen">
+            <div class="flex justify-center items-center text-black">
+                <select
+                    onChange={(e) => {
+                        setSortingOptions(
+                            'level',
+                            e.currentTarget.value ? (parseInt(e.currentTarget.value) as spells.Level) : undefined,
+                        );
                     }}
-                />
-            </section>
-            <section class="w-1/2 p-20">
-                <h1 class="text-center font-semibold">Class List</h1>
-                <SpellList
-                    spells={unpreparedSpells()}
-                    actions={{
-                        Prepare(spell) {
-                            setState('spells', (spells) => [...spells, spell.id]);
-                        },
+                >
+                    <option value="">Level</option>
+                    <option disabled>──────────</option>
+                    <For each={spells.levels}>{(it) => <option value={it}>{it}</option>}</For>
+                </select>
+                <select
+                    onChange={(e) => {
+                        setSortingOptions(
+                            'school',
+                            e.currentTarget.value ? (e.currentTarget.value as spells.School) : undefined,
+                        );
                     }}
-                />
-            </section>
+                >
+                    <option value="">School</option>
+                    <option disabled>──────────</option>
+                    <For each={spells.schools}>{(it) => <option value={it}>{it}</option>}</For>
+                </select>
+                <select
+                    onChange={(e) => {
+                        setSortingOptions(
+                            'className',
+                            e.currentTarget.value ? (e.currentTarget.value as spells.ClassName) : undefined,
+                        );
+                    }}
+                >
+                    <option value="">Class</option>
+                    <option disabled>──────────</option>
+                    <For each={spells.classNames}>{(it) => <option value={it}>{it}</option>}</For>
+                </select>
+            </div>
+            <div class="flex justify-center items-center text-white">
+                <section class="w-1/2 p-20">
+                    <h1 class="text-center font-semibold">Prepared</h1>
+                    <SpellList
+                        spells={preparedSpells()}
+                        actions={{
+                            Forget(spell) {
+                                setState('spells', (spells) => spells.filter((id) => id !== spell.id));
+                            },
+                        }}
+                    />
+                </section>
+                <section class="w-1/2 p-20">
+                    <h1 class="text-center font-semibold">Class List</h1>
+                    <SpellList
+                        spells={unpreparedSpells()}
+                        actions={{
+                            Prepare(spell) {
+                                setState('spells', (spells) => [...spells, spell.id]);
+                            },
+                        }}
+                    />
+                </section>
+            </div>
         </div>
     );
 };
